@@ -8,11 +8,7 @@
 
   export default {
     mounted() {
-      wx.cloud.callFunction({
-        name: 'login',
-      }).then(res => {
-        console.log('me/login', res)
-      })
+
     }
   }
 </script>
