@@ -1,9 +1,0 @@
-{
-  "triggers": [
-    {
-      "name": "myTriggerLogin",
-      "type": "timer",
-      "config": "*/3 * * * * * *"
-    }
-  ]
-}
