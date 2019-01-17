@@ -1,12 +1,12 @@
 <template>
   <div class="container">
     <div class="userinfo">
-      <img v-if="hasLogin" class="avatar" :src="userinfo.avatarUrl" alt="">
+      <img class="avatar" :src="userinfo.avatarUrl" alt="">
       <div class="nickname">{{userinfo.nickName}}</div>
+      <p class="loginbtn" v-if="!hasLogin">
+        <button open-type="getUserInfo" @getuserinfo="authorization">点击登录</button>
+      </p>
     </div>
-    <p class="loginbtn" v-if="!hasLogin">
-      <button open-type="getUserInfo" @getuserinfo="authorization">点击登录</button>
-    </p>
     <YearProgress></YearProgress>
     <button v-if="hasLogin" class="commonBtn btn" @click="scanBook">添加图书</button>
   </div>
@@ -22,7 +22,9 @@
     },
     data() {
       return {
-        userinfo: {},
+        userinfo: {
+          avatarUrl: '../../../static/img/unlogin.png'
+        },
         hasLogin: false
         //canIUse: wx.canIUse('button.open-type.getUserInfo')
       }
@@ -40,16 +42,12 @@
               wx.getUserInfo({
                 success: (res) => {
                   // showSuccess('登录成功')
-                  wx.hideLoading()
                   this.hasLogin = true
                   this.userinfo = res.userInfo
                 }
               })
-            } else {
-              wx.hideLoading()
-              this.hasLogin = false
-              this.userinfo = {}
             }
+            wx.hideLoading()
           }
         })
       },
@@ -70,9 +68,29 @@
       },
       scanBook() {
         wx.scanCode({
-          success(res) {
-            console.log(res)
+          success: res => {
+            if (res.result) {
+              this.addBook(res.result)
+            }
           }
+        })
+      },
+      addBook(isbn) {
+        wx.showLoading()
+        wx.cloud.callFunction({
+          name: 'addBook',
+          data: {
+            isbn
+          }
+        }).then(res => {
+          const result = res.result
+          console.log(result)
+          wx.hideLoading()
+          wx.showModal({
+            title: result.code === 0 ? "成功" : "失败",
+            content: result.msg,
+            showCancel: false
+          })
         })
       }
     }
@@ -87,7 +105,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 115px;
 
       .avatar {
         width: 80px;
@@ -95,21 +112,22 @@
         border-radius: 50%;
         margin-bottom: 10px;
       }
-    }
 
-    .loginbtn {
-      width: 100px;
-      margin: 20px auto 0;
+      .loginbtn {
+        width: 100px;
+        margin: 0 auto 0;
 
-      button {
-        font-size: 15px;
-        line-height: 30px;
-        color: #000;
-        border: 1px solid #ccc;
-        padding: 0;
-        margin: 0;
+        button {
+          font-size: 15px;
+          line-height: 30px;
+          color: #000;
+          border: 1px solid #ccc;
+          padding: 0;
+          margin: 0;
+        }
       }
     }
+
 
     .btn {
       margin-top: 100px;
