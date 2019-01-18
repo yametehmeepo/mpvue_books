@@ -11,7 +11,7 @@ const db = cloud.database()
 exports.main = async (event, context) => {
   const {isbn} = event
   const bookinfoDB = await db.collection('books').where({
-    isbn
+    isbn13: isbn
   }).get()
 
   if (bookinfoDB.data.length) {
@@ -22,29 +22,31 @@ exports.main = async (event, context) => {
         ...bookinfoDB.data[0]
       }
     }
-  } else {
-    try {
-      const bookinfo = await getBook(isbn)
-      await db.collection('books').add({
-        data: bookinfo
-      })
-      return {
-        msg: `《${bookinfo.title}》添加成功`,
-        code: 0,
-        bookinfo
-      }
-    } catch (e) {
-      return {
-        msg: '添加图书失败',
-        code: -1
-      }
+  }
+
+  try {
+    const bookinfo = await getBook(isbn)
+    await db.collection('books').add({
+      data: bookinfo
+    })
+    return {
+      msg: `《${bookinfo.title}》添加成功`,
+      code: 0,
+      bookinfo
+    }
+  } catch (e) {
+    return {
+      msg: '添加图书失败',
+      code: -1
     }
   }
 }
 
 function getBook(isbn) {
   return new Promise((resolve, reject) => {
-    request('http://t.yushu.im/v2/book/isbn/' + isbn, (error, response, body) => {
+    //http://t.yushu.im/v2/book/isbn/
+    //https://api.douban.com/
+    request('https://api.douban.com/v2/book/isbn/' + isbn, (error, response, body) => {
       if (!error && response.statusCode === 200) {
         resolve(JSON.parse(body))
       } else {

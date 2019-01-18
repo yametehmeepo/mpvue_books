@@ -29,6 +29,8 @@
 </script>
 
 <style lang="less" scoped>
+  @import '~styles/variables.less';
+
   .container {
     margin-top: 10px;
 
@@ -37,7 +39,7 @@
 
       .progress-bar-inner {
         height: 5px;
-        background-color: #EA5149;
+        background-color: @color;
         width: 10%;
       }
     }
@@ -49,7 +51,7 @@
       text-align: center;
 
       .red {
-        color: #EA5149;
+        color: @color;
       }
     }
   }

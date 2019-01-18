@@ -80,8 +80,8 @@ wx.cloud.deleteFile({
 
 #### 数据库
 
-<li>云函数操作数据库的时候不支持回调函数 只支持`promise`</li>
-<li>小程序端不支持`where`查询</li>
+<li>云函数操作数据库的时候不支持回调函数 只支持promise</li>
+<li>小程序端不支持where查询</li>
 <li>云函数查询不到时添加数据:</li>
 <pre>
 const cloud = require('wx-server-sdk')
@@ -95,6 +95,7 @@ exports.main = async (event, context) => {
   let userdata = await db.collection('userList').where({
     openid: OPENID
   }).get()
+  //等待数据库查询数据 如果没有openid的数据则把openid插入到数据库
   if (userdata.data.length === 0) {
     return await db.collection('userList').add({
       data: {

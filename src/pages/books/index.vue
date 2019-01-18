@@ -1,19 +1,17 @@
 <template>
   <div class="container">
-    <ul>
-      <li v-for="(item, index) in list" :key="index">
-        <p>标题: {{item.title}}</p>
-        <p>作者: {{item.author}}</p>
-        <p>国家: {{item.publishInfo.country}}</p>
-        <p>年份: {{item.publishInfo.year}}年</p>
-      </li>
-    </ul>
+    <Card v-for="(book, index) in list" :key="book.id" :book="book"></Card>
   </div>
 </template>
 
 <script>
 
+  import Card from "@/components/Card"
+
   export default {
+    components: {
+      Card
+    },
     data() {
       return {
         list: []
@@ -27,22 +25,14 @@
         wx.hideNavigationBarLoading()
       },
       getBooks() {
-        this.showLoading()
-        //云函数获取书籍
+        wx.showNavigationBarLoading()
         wx.cloud.callFunction({
           name: 'getBooks',
         }).then(res => {
           console.log('getBooks-cloud', res)
-          this.list = (res.result.data && res.result.data.books) ? res.result.data.books : []
-          this.hideLoading()
+          this.list = (res.result.data && res.result.data) ? res.result.data : []
+          wx.hideNavigationBarLoading()
         })
-        //小程序获取书籍
-        /*const db = wx.cloud.database()
-        db.collection('books').doc('XD1Se3kPDdDCJ3YM').get().then(res => {
-          console.log('getBooks-wx', res)
-          this.list = (res.data && res.data.books) ? res.data.books : []
-          this.hideLoading()
-        })*/
       }
     },
     mounted() {
@@ -51,5 +41,10 @@
   }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+  @import '~styles/variables.less';
+
+  .container {
+    padding: 0 15px;
+  }
 </style>
