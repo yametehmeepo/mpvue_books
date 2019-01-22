@@ -54,7 +54,11 @@ exports.main = async (event, context) => {
         title: bookinfo.title,
         tags: bookinfo.tags,
         url: bookinfo.url,
-        contributor: userObj.nickName
+        count: 0,
+        contributor: {
+          nickName: userObj.nickName,
+          avatarUrl: userObj.avatarUrl
+        }
       }
     })
     return {

@@ -1,6 +1,6 @@
 {
-  "backgroundColor": "#EA5149",
   "backgroundColorTop": "#EA5149",
   "backgroundColorBottom": "#fff",
-  "enablePullDownRefresh": true
+  "enablePullDownRefresh": false,
+  "navigationBarTitleText": ""
 }

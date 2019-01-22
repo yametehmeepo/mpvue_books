@@ -32,7 +32,10 @@
       hideLoading() {
         wx.hideNavigationBarLoading()
       },
-      getBooks() {
+      getBooks(init) {
+        if (init) {
+          this.start = 0
+        }
         wx.showNavigationBarLoading()
         wx.cloud.callFunction({
           name: 'getBooks',
@@ -42,24 +45,11 @@
         }).then(res => {
           wx.stopPullDownRefresh()
           console.log('getBooks-cloud', res)
-          this.list = (res.result.books && res.result.books) ? [...this.list, ...res.result.books] : []
-          this.total = res.result.total
-          this.start = this.start + res.result.count
-          wx.hideNavigationBarLoading()
-        })
-      },
-      getBooksInit() {
-        this.start = 0
-        wx.showNavigationBarLoading()
-        wx.cloud.callFunction({
-          name: 'getBooks',
-          data: {
-            start: this.start
+          if (init) {
+            this.list = (res.result.books && res.result.books) ? res.result.books : []
+          } else {
+            this.list = (res.result.books && res.result.books) ? [...this.list, ...res.result.books] : []
           }
-        }).then(res => {
-          wx.stopPullDownRefresh()
-          console.log('getBooks-cloud', res)
-          this.list = (res.result.books && res.result.books) ? res.result.books : []
           this.total = res.result.total
           this.start = this.start + res.result.count
           wx.hideNavigationBarLoading()
@@ -67,10 +57,10 @@
       }
     },
     mounted() {
-      this.getBooks()
+      this.getBooks(true)
     },
     onPullDownRefresh() {
-      this.getBooksInit()
+      this.getBooks(true)
     },
     onReachBottom() {
       if (this.start >= this.total) {

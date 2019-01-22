@@ -8,7 +8,7 @@
       </p>
     </div>
     <YearProgress></YearProgress>
-    <button v-if="hasLogin" class="commonBtn btn" @click="scanBook">添加图书</button>
+    <button v-if="hasLogin" class="btn" @click="scanBook">添加图书</button>
   </div>
 </template>
 
@@ -102,6 +102,8 @@
 </script>
 
 <style lang="less" scoped>
+  @import '~styles/variables.less';
+
   .container {
     padding: 80px 10px 0;
 
@@ -135,6 +137,7 @@
 
     .btn {
       margin-top: 100px;
+      .commonBtn;
     }
   }
 </style>

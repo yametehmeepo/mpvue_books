@@ -1,5 +1,5 @@
 <template>
-  <div class="item">
+  <div class="item" @click="navigateToDetail">
     <div class="img">
       <img :src="book.image" alt="" mode="widthFix">
     </div>
@@ -9,7 +9,7 @@
           {{book.title}}
         </div>
         <div class="rating">
-          {{book.rating.average}}
+          {{book.rating}}
           <Rate :value="book.rating"></Rate>
         </div>
       </div>
@@ -26,7 +26,7 @@
           {{book.publisher}}
         </div>
         <div class="contributor">
-          {{book.contributor}}
+          {{book.contributor.nickName}}
         </div>
       </div>
     </div>
@@ -41,6 +41,13 @@
     props: ['book'],
     components: {
       Rate
+    },
+    methods: {
+      navigateToDetail() {
+        wx.navigateTo({
+          url: '/pages/detail/main?id=' + this.book.id
+        })
+      }
     }
   }
 </script>
@@ -77,6 +84,7 @@
           /*width: 80px;*/
           margin-left: 10px;
           padding-top: 3px;
+          color: @color;
         }
 
         .title {
