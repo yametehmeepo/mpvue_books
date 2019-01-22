@@ -53,10 +53,14 @@
       },
       authorization(e) {
         let userInfo = e.mp.detail.userInfo
+        //console.log('userInfo', userInfo)
         if (userInfo) {
           wx.showLoading()
           wx.cloud.callFunction({
-            name: 'login'
+            name: 'login',
+            data: {
+              user: userInfo
+            }
           }).then(res => {
             console.log('login云传过来的', res)
             this.hasLogin = true

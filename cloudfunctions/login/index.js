@@ -26,12 +26,13 @@ exports.main = async (event, context) => {
   const {OPENID, APPID} = cloud.getWXContext()
 
   let userdata = await db.collection('userList').where({
-    openid: OPENID
+    openId: OPENID
   }).get()
   if (userdata.data.length === 0) {
     return await db.collection('userList').add({
       data: {
-        openid: OPENID
+        ...event.user,
+        ...event.userInfo
       }
     })
   } else {

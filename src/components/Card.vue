@@ -10,12 +10,12 @@
         </div>
         <div class="rating">
           {{book.rating.average}}
-          <Rate :value="book.rating.average"></Rate>
+          <Rate :value="book.rating"></Rate>
         </div>
       </div>
       <div class="row authorRow">
         <div class="author">
-          {{author}}
+          {{book.author}}
         </div>
         <div class="browse">
           浏览:15
@@ -26,7 +26,7 @@
           {{book.publisher}}
         </div>
         <div class="contributor">
-          贡献者
+          {{book.contributor}}
         </div>
       </div>
     </div>
@@ -41,12 +41,6 @@
     props: ['book'],
     components: {
       Rate
-    },
-    computed: {
-      author() {
-        const author = this.book.author || ['佚名']
-        return author.join(',')
-      }
     }
   }
 </script>
@@ -105,11 +99,12 @@
 
         .publisher {
           flex: 1;
+          line-height: 1.2;
           .ellipse2
         }
 
         .contributor {
-          max-width: 90px;
+          max-width: 120px;
           margin-left: 10px;
           .ellipse1
         }
