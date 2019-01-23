@@ -13,6 +13,7 @@
 	"compileType": "miniprogram",
 	"appid": "wxc17ae904ef9c76c1",
 	"projectname": "mpvue-quickstart",
+	"libVersion": "2.5.1",
 	"condition": {
 		"search": {
 			"current": -1,

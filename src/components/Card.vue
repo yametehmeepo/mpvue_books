@@ -1,7 +1,7 @@
 <template>
   <div class="item" @click="navigateToDetail">
     <div class="img">
-      <img :src="book.image" alt="" mode="widthFix">
+      <img v-if="book.image" :src="book.image" alt="" mode="widthFix" @click.stop="previewImage">
     </div>
     <div class="bookinfo">
       <div class="row">
@@ -18,7 +18,7 @@
           {{book.author}}
         </div>
         <div class="browse">
-          浏览:15
+          浏览量:{{book.count}}
         </div>
       </div>
       <div class="row publisherRow">
@@ -46,6 +46,12 @@
       navigateToDetail() {
         wx.navigateTo({
           url: '/pages/detail/main?id=' + this.book.id
+        })
+      },
+      previewImage() {
+        wx.previewImage({
+          current: this.book.image,
+          urls: [this.book.image]
         })
       }
     }

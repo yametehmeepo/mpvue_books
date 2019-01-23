@@ -1,9 +1,9 @@
 <template>
   <div class="container">
     <div class="head">
-      <div class="head-background" :style="{backgroundImage:'url(' + book.image + ')'}"></div>
+      <div v-if="book.image" class="head-background" :style="{backgroundImage:'url(' + book.image + ')'}"></div>
       <div class="head-img">
-        <img :src="book.image" alt="" mode="aspectFit" v-if="book.image">
+        <img v-if="book.image" :src="book.image" alt="" mode="aspectFit">
       </div>
       <div class="title">
         {{book.title}}
@@ -67,7 +67,15 @@
     },
     methods: {
       getDetail() {
-        console.log('id', this.id)
+        //console.log('id', this.id)
+        const book = wx.getStorageSync(this.id)
+        if (book) {
+          this.book = book
+          wx.setNavigationBarTitle({
+            title: book.title || ''
+          })
+          return
+        }
         wx.showLoading()
         wx.cloud.callFunction({
           name: 'getDetail',
@@ -77,6 +85,7 @@
         }).then(res => {
           console.log('获取图书详情', res)
           this.book = res.result.book ? res.result.book : {}
+          wx.setStorageSync(this.id, res.result.book)
           wx.setNavigationBarTitle({
             title: this.book.title || ''
           })
