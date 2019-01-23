@@ -35,7 +35,8 @@
         <span v-for="(item, index) in book.tags" :key="index" class="tag">{{item}}</span>
       </div>
       <div class="summary">
-        {{book.summary}}
+        <!--{{book.summary}}-->
+        <p v-for="(item, index) in book.summary" :key="index">{{item}}</p>
       </div>
       <div class="btns" v-if="book.title">
         <button class="transmit" open-type="share">转发给好友</button>
@@ -65,15 +66,18 @@
         backgroundImage: {}
       }
     },
+    computed: {},
     methods: {
       getDetail() {
         //console.log('id', this.id)
         const book = wx.getStorageSync(this.id)
         if (book) {
+          book.summary = book.summary.split('\n')
           this.book = book
           wx.setNavigationBarTitle({
             title: book.title || ''
           })
+          console.log(book)
           return
         }
         wx.showLoading()

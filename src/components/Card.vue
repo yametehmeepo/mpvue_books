@@ -18,7 +18,7 @@
           {{book.author}}
         </div>
         <div class="browse">
-          浏览量:{{book.count}}
+          浏览:{{book.count}}
         </div>
       </div>
       <div class="row publisherRow">
