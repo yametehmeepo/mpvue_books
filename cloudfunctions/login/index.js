@@ -28,16 +28,30 @@ exports.main = async (event, context) => {
   let userdata = await db.collection('userList').where({
     openId: OPENID
   }).get()
+
   if (userdata.data.length === 0) {
-    return await db.collection('userList').add({
-      data: {
-        ...event.user,
-        ...event.userInfo
+    try {
+      const data = Object.assign({}, event.user, event.userInfo)
+      await db.collection('userList').add({
+        data
+      })
+      return {
+        code: 0,
+        msg: '登录成功',
+        data
       }
-    })
+    } catch (e) {
+      return {
+        code: -1,
+        msg: '登录失败',
+        data
+      }
+    }
   } else {
     return {
-      event,
+      code: 1,
+      msg: '登录成功',
+      data: userdata.data[0]
     }
   }
 }

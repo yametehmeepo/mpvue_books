@@ -44,6 +44,7 @@
                   // showSuccess('登录成功')
                   this.hasLogin = true
                   this.userinfo = res.userInfo
+
                 }
               })
             }

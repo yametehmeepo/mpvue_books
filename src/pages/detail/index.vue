@@ -38,15 +38,27 @@
         <!--{{book.summary}}-->
         <p v-for="(item, index) in book.summary" :key="index">{{item}}</p>
       </div>
-      <div class="location">
-        位置:
-        <switch color="#EA5149" :checked="locationChecked" @change="locationSwitch"/>
-        {{location}}
-      </div>
-      <div class="phone">
-        手机:
-        <switch color="#EA5149" @change="phoneSwitch"/>
-        {{phone}}
+      <div class="comments">
+        <div class="title">我的评论</div>
+        <textarea
+          class="textarea"
+          v-model.trim="comment_text"
+          placeholder="请输入评论"
+          placeholder-class="placeholder-textarea"
+          maxlength="100"
+          @confirm="addComments"
+        ></textarea>
+        <div class="location">
+          位置:
+          <switch color="#EA5149" :checked="locationChecked" @change="locationSwitch"/>
+          {{location}}
+        </div>
+        <div class="phone">
+          手机:
+          <switch color="#EA5149" @change="phoneSwitch"/>
+          {{phone}}
+        </div>
+        <button :loading="addLoading" class="button" @click="addComments">评论</button>
       </div>
       <div class="btns" v-if="book.title">
         <button class="transmit" open-type="share">转发给好友</button>
@@ -77,7 +89,10 @@
         location: "",
         locationChecked: false,
         phone: '',
-        locationAuthorized: true
+        locationAuthorized: true,
+        comment_text: '',
+        addLoading: false,
+        commentTrigger: false
       }
     },
     computed: {},
@@ -157,9 +172,9 @@
         }).then(res => {
           console.log('getLocation-res', res)
           if (res.result.code === 1) {
-            this.location = res.result.location || '未知位置'
+            this.location = res.result.location || '未知地点'
           } else {
-            this.location = '未知位置'
+            this.location = '未知地点'
           }
         })
         //this.getLocationData(res.latitude, res.longitude)
@@ -193,6 +208,26 @@
       phoneSwitch(e) {
         //console.log(wx.getSystemInfoSync())
         this.phone = e.target.value ? wx.getSystemInfoSync().model : ''
+      },
+      addComments() {
+        if (this.comment_text !== '') {
+          if (this.commentTrigger) {
+            return
+          }
+          this.commentTrigger = true
+          this.addLoading = true
+          wx.cloud.callFunction({
+            name: 'addComment',
+            data: {
+              id: this.id,
+              comment: this.comment_text,
+              location: this.location,
+              phone: this.phone
+            }
+          }).then(res => {
+            console.log('addComment-cloud', res)
+          })
+        }
       }
     },
     mounted() {
@@ -329,6 +364,40 @@
         text-indent: 28px;
         font-size: 14px;
         line-height: 21px;
+      }
+
+      .comments {
+        margin-top: 20px;
+
+        .title {
+          font-size: 16px;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+
+        .textarea {
+          border: 1px solid #eee;
+          font-size: 14px;
+          line-height: 1.2;
+          width: 100%;
+          box-sizing: border-box;
+          padding: 5px;
+        }
+
+        .location {
+          margin-top: 5px;
+          font-size: 14px;
+        }
+
+        .phone {
+          margin-top: 5px;
+          font-size: 14px;
+        }
+
+        .button {
+          margin-top: 5px;
+          .commonBtn;
+        }
       }
 
       .btns {
