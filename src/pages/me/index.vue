@@ -41,10 +41,9 @@
               this.hasLogin = true
               wx.getUserInfo({
                 success: (res) => {
-                  // showSuccess('登录成功')
+                  //console.log('login', res)
                   this.hasLogin = true
                   this.userinfo = res.userInfo
-
                 }
               })
             }
@@ -65,7 +64,8 @@
           }).then(res => {
             console.log('login云传过来的', res)
             this.hasLogin = true
-            this.userinfo = userInfo
+            this.userinfo = res.result.data
+            wx.setStorageSync('userinfo', res.result.data);
             wx.hideLoading()
           })
           //wx.setStorageSync('userinfo', userInfo);

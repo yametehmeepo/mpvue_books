@@ -10,19 +10,19 @@ const db = cloud.database()
 // 云函数入口函数
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
-  const {id, comment, location, phone} = event
+  const {id, comment, location, phone, user} = event
   const data = {
     id,
     comment,
     location,
     phone,
-    openid: wxContext.OPENID
+    openId: wxContext.OPENID,
+    nickName: user.nickName,
+    avatarUrl: user.avatarUrl
   }
   try {
     await db.collection('comments').add({
       data,
-    }).then(res => {
-      console.log('添加评论成功', res)
     })
     return {
       code: 1,

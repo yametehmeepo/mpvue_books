@@ -32,33 +32,44 @@
         </div>
       </div>
       <div class="tags">
-        <span v-for="(item, index) in book.tags" :key="index" class="tag">{{item}}</span>
+        <span v-for="(item, tagIndex) in book.tags" :key="item" class="tag">{{item}}</span>
       </div>
       <div class="summary">
         <!--{{book.summary}}-->
         <p v-for="(item, index) in book.summary" :key="index">{{item}}</p>
       </div>
+      <comment-list :list="commentsList"></comment-list>
       <div class="comments">
-        <div class="title">我的评论</div>
-        <textarea
-          class="textarea"
-          v-model.trim="comment_text"
-          placeholder="请输入评论"
-          placeholder-class="placeholder-textarea"
-          maxlength="100"
-          @confirm="addComments"
-        ></textarea>
-        <div class="location">
-          位置:
-          <switch color="#EA5149" :checked="locationChecked" @change="locationSwitch"/>
-          {{location}}
+        <div v-if="hasLogin">
+          <div v-if="canComment">
+            <div class="title">我的评论</div>
+            <textarea
+              class="textarea"
+              v-model.trim="comment_text"
+              placeholder="请输入评论"
+              placeholder-class="placeholder-textarea"
+              maxlength="100"
+              @confirm="addComments"
+            ></textarea>
+            <div class="location">
+              位置:
+              <switch color="#EA5149" :checked="locationChecked" @change="locationSwitch"/>
+              {{location}}
+            </div>
+            <div class="phone">
+              手机:
+              <switch color="#EA5149" @change="phoneSwitch"/>
+              {{phone}}
+            </div>
+            <button :loading="addLoading" class="button" @click="addComments">评论</button>
+          </div>
+          <div v-else class="cannotComment">
+            您已评论
+          </div>
         </div>
-        <div class="phone">
-          手机:
-          <switch color="#EA5149" @change="phoneSwitch"/>
-          {{phone}}
+        <div v-else class="cannotComment">
+          您还没有登录，不能评论
         </div>
-        <button :loading="addLoading" class="button" @click="addComments">评论</button>
       </div>
       <div class="btns" v-if="book.title">
         <button class="transmit" open-type="share">转发给好友</button>
@@ -70,14 +81,17 @@
 
 <script>
   import Rate from '@/components/Rate'
+  import CommentList from '@/components/CommentList'
 
   export default {
     components: {
-      Rate
+      Rate,
+      CommentList
     },
     data() {
       return {
         id: '',
+        userinfo: {},
         book: {
           image: '',
           contributor: {
@@ -92,16 +106,22 @@
         locationAuthorized: true,
         comment_text: '',
         addLoading: false,
-        commentTrigger: false
+        commentTrigger: false,
+        hasLogin: false,
+        canComment: true,
+        commentsList: []
       }
     },
-    computed: {},
+    computed: {
+      /*canComment(){
+        return this.hasLogin ||
+      }*/
+    },
     methods: {
       getDetail() {
         //console.log('id', this.id)
-        const book = wx.getStorageSync(this.id)
+        let book = wx.getStorageSync(this.id)
         if (book) {
-          book.summary = book.summary.split('\n')
           this.book = book
           wx.setNavigationBarTitle({
             title: book.title || ''
@@ -123,6 +143,13 @@
             title: this.book.title || ''
           })
           wx.hideLoading()
+        })
+      },
+      getComments() {
+        wx.cloud.callFunction({
+          name: 'getComments'
+        }).then(res => {
+          console.log('getComments-cloud', res)
         })
       },
       back() {
@@ -222,17 +249,53 @@
               id: this.id,
               comment: this.comment_text,
               location: this.location,
-              phone: this.phone
+              phone: this.phone,
+              user: this.userinfo
             }
           }).then(res => {
             console.log('addComment-cloud', res)
+            if (res.result.code === 1) {
+              wx.showToast({
+                title: '添加评论成功',
+                icon: 'none'
+              })
+              this.comment_text = ''
+              this.canComment = false
+            } else {
+              wx.showToast({
+                title: '添加评论失败',
+                icon: 'none'
+              })
+            }
           })
         }
+      },
+      checkLoginStatus() {
+        wx.getSetting({
+          success: (res) => {
+            if (res.authSetting['scope.userInfo']) {
+              this.hasLogin = true
+              const userinfo = wx.getStorageSync('userinfo')
+              if (userinfo) {
+                this.userinfo = userinfo
+              } else {
+                wx.getUserInfo({
+                  success: (res) => {
+                    //console.log('login', res)
+                    this.userinfo = res.userInfo
+                  }
+                })
+              }
+            }
+          }
+        })
       }
     },
     mounted() {
       this.id = this.$root.$mp.query.id
+      this.checkLoginStatus()
       this.getDetail()
+      this.getComments()
     },
     onShareAppMessage(res) {
       console.log('点击转发')
@@ -368,6 +431,13 @@
 
       .comments {
         margin-top: 20px;
+
+        .cannotComment {
+          font-size: 14px;
+          line-height: 1.2;
+          text-align: center;
+          color: @color;
+        }
 
         .title {
           font-size: 16px;

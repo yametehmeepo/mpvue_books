@@ -13,6 +13,7 @@ exports.main = async (event, context) => {
   try {
     const res = await db.collection('books').where({id}).get()
     let book = res.data[0] || []
+    book.summary = book.summary.split('\n')
     await db.collection('books').where({id}).update({
       data: {
         count: res.data[0].count ? res.data[0].count + 1 : 1
