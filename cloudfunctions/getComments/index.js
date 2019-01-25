@@ -10,16 +10,24 @@ const db = cloud.database()
 // 云函数入口函数
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
+  const openId = wxContext.OPENID
   try {
-    const list = await db.collection('comments').get()
+    const list = await db.collection('comments').where({
+      id: event.id
+    }).get()
+    const user_comment = await db.collection('comments').where({
+      openId,
+      id: event.id
+    }).get()
     return {
       code: 1,
       msg: '获取评论成功',
-      comment: list.data
+      commented: user_comment.data.length !== 0,
+      commentsList: list.data
     }
   } catch (e) {
     return {
-      code: 1,
+      code: -1,
       msg: '获取评论失败',
       data: e
     }

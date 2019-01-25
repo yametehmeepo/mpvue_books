@@ -42,7 +42,7 @@
       <div class="comments">
         <div v-if="hasLogin">
           <div v-if="canComment">
-            <div class="title">我的评论</div>
+            <div class="title">发表评论</div>
             <textarea
               class="textarea"
               v-model.trim="comment_text"
@@ -61,10 +61,10 @@
               <switch color="#EA5149" @change="phoneSwitch"/>
               {{phone}}
             </div>
-            <button :loading="addLoading" class="button" @click="addComments">评论</button>
+            <!--<button :loading="addLoading" class="button" @click="addComments">评论</button>-->
           </div>
           <div v-else class="cannotComment">
-            您已评论
+            您已评论过
           </div>
         </div>
         <div v-else class="cannotComment">
@@ -147,15 +147,68 @@
       },
       getComments() {
         wx.cloud.callFunction({
-          name: 'getComments'
+          name: 'getComments',
+          data: {
+            id: this.id
+          }
         }).then(res => {
           console.log('getComments-cloud', res)
+          if (res.result.code === 1) {
+            this.commentsList = res.result.commentsList
+            this.canComment = !res.result.commented
+          }
         })
       },
       back() {
         wx.navigateBack({
           delta: 1
         })
+      },
+      addComments() {
+        if (this.comment_text !== '') {
+          if (this.commentTrigger) {
+            return
+          }
+          wx.showLoading()
+          this.commentTrigger = true
+          this.addLoading = true
+          wx.cloud.callFunction({
+            name: 'addComment',
+            data: {
+              id: this.id,
+              comment: this.comment_text,
+              location: this.location || '未知地点',
+              phone: this.phone || '未知型号',
+              user: this.userinfo
+            }
+          }).then(res => {
+            wx.hideLoading()
+            console.log('addComment-cloud', res)
+            if (res.result.code === 1) {
+              wx.showToast({
+                title: '添加评论成功',
+                icon: 'none'
+              })
+              this.comment_text = ''
+              this.canComment = false
+              this.commentTrigger = false
+              this.getComments()
+            } else {
+              wx.showToast({
+                title: '添加评论失败',
+                icon: 'none'
+              })
+              this.commentTrigger = false
+            }
+          }).catch(err => {
+            wx.showToast({
+              title: '添加评论失败',
+              icon: 'none'
+            })
+            this.commentTrigger = false
+            wx.hideLoading()
+          })
+        }
       },
       getLocationData(latitude, longitude) {
         //const ak = 'OfhWyvaVhXf0kvrupzF4NO9Rc6uEuQje'浏览器
@@ -235,40 +288,6 @@
       phoneSwitch(e) {
         //console.log(wx.getSystemInfoSync())
         this.phone = e.target.value ? wx.getSystemInfoSync().model : ''
-      },
-      addComments() {
-        if (this.comment_text !== '') {
-          if (this.commentTrigger) {
-            return
-          }
-          this.commentTrigger = true
-          this.addLoading = true
-          wx.cloud.callFunction({
-            name: 'addComment',
-            data: {
-              id: this.id,
-              comment: this.comment_text,
-              location: this.location,
-              phone: this.phone,
-              user: this.userinfo
-            }
-          }).then(res => {
-            console.log('addComment-cloud', res)
-            if (res.result.code === 1) {
-              wx.showToast({
-                title: '添加评论成功',
-                icon: 'none'
-              })
-              this.comment_text = ''
-              this.canComment = false
-            } else {
-              wx.showToast({
-                title: '添加评论失败',
-                icon: 'none'
-              })
-            }
-          })
-        }
       },
       checkLoginStatus() {
         wx.getSetting({
