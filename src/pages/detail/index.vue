@@ -38,7 +38,15 @@
         <!--{{book.summary}}-->
         <p v-for="(item, index) in book.summary" :key="index">{{item}}</p>
       </div>
-      <comment-list :list="commentsList"></comment-list>
+      <div class="commentslist">
+        <div class="title">评论列表</div>
+        <div v-if="commentsList.length">
+          <comment-list :list="commentsList"></comment-list>
+        </div>
+        <div v-else class="nocomments">
+          还没有任何评论
+        </div>
+      </div>
       <div class="comments">
         <div v-if="hasLogin">
           <div v-if="canComment">
@@ -49,6 +57,7 @@
               placeholder="请输入评论"
               placeholder-class="placeholder-textarea"
               maxlength="100"
+              @keyup.enter="addComments"
               @confirm="addComments"
             ></textarea>
             <div class="location">
@@ -446,6 +455,27 @@
         text-indent: 28px;
         font-size: 14px;
         line-height: 21px;
+      }
+
+      .commentslist {
+        width: 100%;
+        padding: 10px 0;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        margin: 20px 0 20px;
+
+        .title {
+          font-size: 16px;
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+
+        .nocomments {
+          font-size: 14px;
+          line-height: 1.2;
+          text-align: center;
+          color: @color;
+        }
       }
 
       .comments {

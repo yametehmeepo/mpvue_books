@@ -57,7 +57,8 @@ exports.main = async (event, context) => {
         count: 0,
         contributor: {
           nickName: userObj.nickName,
-          avatarUrl: userObj.avatarUrl
+          avatarUrl: userObj.avatarUrl,
+          openId: OPENID
         }
       }
     })
